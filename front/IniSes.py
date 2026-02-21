@@ -16,43 +16,23 @@ def goconn_upload_pinfo():
     mensaje = f"{entry_nombre.get()}, {entry_monto.get()}"
     cliente.send(mensaje.encode())
     
-<<<<<<< HEAD
-    # Recibimos confirmación
-    respuesta = cliente.recv(1024)
-    cliente.close()
-
-def loadgame():
-    res = msg.askyesno("¿Continuar?", "¿Los datos estan correctos?")
-=======
     #seramos la conexion para evitar temas o cualquier error
     cliente.close()
 
 def loadgame():
     res = msg.askyesno("¿Cargar partida?", "Seguro?")
->>>>>>> master
     if res:
         app.withdraw()
         gamecon = tk.Toplevel()
         gamecon.title("Menu de juegos")
         gamecon.geometry("500x300+100+100")
     elif not res:
-<<<<<<< HEAD
-        dev = -1 
-    return dev
-=======
         pass
 
->>>>>>> master
 
 def shutdown():
     s = msg.askyesno("¿TE VAS?", "¿Me abandonas?")
     if s:
-<<<<<<< HEAD
-        ret = 1
-    elif not s:
-        ret = -1
-    return ret
-=======
         close_all_windows()
     elif not s:
         show_happy()        
@@ -63,7 +43,6 @@ def close_all_windows():
 
 def show_happy():
     msg.showinfo("Yeah", "Gracias por no irte")
->>>>>>> master
 
 app = tk.Tk()
 app.title("Cliente Casino")
