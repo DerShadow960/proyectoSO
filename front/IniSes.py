@@ -53,7 +53,7 @@ class CasinoApp:
         tk.Button(frame, text="Salir", bg="#f44336", fg="white", command=self.protocol_shutdown).pack(fill="x", pady=5)
 
     def show_game_menu(self):
-        """Página 2: Menú de Juegos (Dashboard)"""
+        # """Página 2: Menú de Juegos (Dashboard)"""
         self.clear_screen()
         frame = tk.Frame(self.main_container)
         frame.pack(pady=20)
@@ -70,7 +70,7 @@ class CasinoApp:
             # Usamos lambda j=juego para "congelar" el valor del nombre del juego en el loop
             tk.Button(frame, text=f"Juego {i}: {juego}", width=30, command=lambda j=juego: self.confirmar_juego(j)).pack(pady=2)
 
-        tk.Button(frame, text="Volver al Inicio", command=self.show_login_page).pack(pady=20)
+        tk.Button(frame, text="Volver al Inicio", bg="#f44336", fg="white", command=self.show_login_page).pack(pady=20)
 
     def show_load_page(self):
         # """Página 3: Cargar Partida con Tabla (Treeview)"""
@@ -126,8 +126,8 @@ class CasinoApp:
 
     def confirmar_juego(self, nombre_juego):
         # """Pide confirmación antes de entrar a un juego."""
-        if msg.askyesno("Confirmación", f"¿Seguro que quieres jugar a {nombre_juego}?"):
-            msg.showinfo("Entrando", f"Iniciando {nombre_juego}... ¡Buena suerte!")
+        msg.showinfo("Entrando", f"Iniciando {nombre_juego}... ¡Buena suerte!")
+        
 
     def populate_table(self):
         # """Lee el txt y llena la tabla del front."""
