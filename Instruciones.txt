@@ -1,14 +1,5 @@
 Paso 1, ejecute los sigueintes comandos, para tener las dependencias necesarias para correr el proyecto
 
-<<<<<<< HEAD
-    sudo apt install python3-tk
-
-Paso 2, Correr front y back con los siguientes comandos
-
-    cd dir-carp-proyecto/back ===> go rum main.go
-    cd dir-carp-proyecto/front ===> python3 IniSes.py
-
-=======
     sudo apt install python3
     sudo apt install python3-tk
     sudo apt install golang-go 
@@ -19,4 +10,3 @@ Paso 2, Correr front y back con los siguientes comandos
     cd dir-carp-proyecto/back ===> go rum main.go
     cd dir-carp-proyecto/front ===> python3 IniSes.py
     
->>>>>>> master
