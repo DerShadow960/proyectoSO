@@ -1,4 +1,2 @@
-Rafa, 1000
-Fernanda, 1000000
-Maxwell, 9024
-Ivan, 6000
+rafa,1000,1234
+Diego,1000,1234
