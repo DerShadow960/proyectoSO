@@ -3,9 +3,12 @@ package main
 import (
 	"fmt"
 	"net"
-	"os"
+	"os" // Para la creacion de archivos, escritura y lectura de cualquier tipo de archivos
 	"strings" // Necesario para separar el texto
+	"sync" // Para el manejo de hilos de forma segura
 )
+
+var mu sync.Mutex
 
 func main() {
 	// 1. Abrir el puerto 8080 para que Python se conecte
@@ -31,12 +34,14 @@ func handleConnection(conn net.Conn) {
 
 	if len(partes) < 2 {
 		fmt.Println("Datos incompletos recibidos")
-		return 0
+		return
 	}
 
 	nombre := strings.TrimSpace(partes[0])
 	monto := strings.TrimSpace(partes[1])
 
+
+	mu.Lock()
 	// 2. Lógica de archivos .txt (Guardar partida) 
 	// Usamos permisos Unix 0644 como pide la arquitectura base [cite: 7, 15]
 	datos := fmt.Sprintf("%s, %s\n", nombre, monto)
@@ -53,8 +58,10 @@ func handleConnection(conn net.Conn) {
 		fmt.Println("Error al escribir")
 	}
 
+	mu.Unlock()
+
 	fmt.Printf("Jugador %s con monto %s guardado con éxito\n", nombre, monto)
-	conn.Write([]byte("Conexion exitosa. Datos guardados en servidor Unix."))
+	conn.Write([]byte("Conexion exitosa. Datos guardados en el archivo de partida.txt."))
 }
 
 

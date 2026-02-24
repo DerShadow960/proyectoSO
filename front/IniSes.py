@@ -5,19 +5,26 @@ import socket
 
 
 def goconn_upload_pinfo():
-    # Creamos el socket para hablar con el backend
-    # socket.AF_INET--- Comando usado para indicar el uso del protocolo de internet version 4
-    # socket.SOCK_STREAM--- Tipo de socket que usa el protoco TCP (Transmision Control Protocol), 
-    #                           se usa para la transmicion de datos, de forma segura y estable
-    cliente = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    cliente.connect(('localhost', 8080))
+    try:
+        # Creamos el socket para hablar con el backend
+        # socket.AF_INET--- Comando usado para indicar el uso del protocolo de internet version 4
+        # socket.SOCK_STREAM--- Tipo de socket que usa el protoco TCP (Transmision Control Protocol), 
+        #                           se usa para la transmicion de datos, de forma segura y estable
     
-    # Enviamos los datos del cuadro de texto
-    mensaje = f"{entry_nombre.get()}, {entry_monto.get()}"
-    cliente.send(mensaje.encode())
-    
-    #seramos la conexion para evitar temas o cualquier error
-    cliente.close()
+        cliente = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        cliente.settimeout(2) # Si en 2 segundos no conecta, falla
+        cliente.connect(('localhost', 8080))
+        
+        mensaje = f"{entry_nombre.get()}, {entry_monto.get()}"
+        cliente.send(mensaje.encode())
+        
+        # Recibimos confirmación del servidor
+        respuesta = cliente.recv(1024).decode()
+        msg.showinfo("Servidor dice:", respuesta)
+        
+        cliente.close()
+    except Exception as e:
+        msg.showerror("Error", "No se pudo conectar con el servidor del Casino")
 
 def loadgame():
     res = msg.askyesno("¿Cargar partida?", "Seguro?")
