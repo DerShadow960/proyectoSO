@@ -79,7 +79,7 @@ class CasinoApp:
         """Función Maestra: Aquí se resuelve el tema de los bytes (.encode)"""
         try:
             with socket.create_connection(('localhost', 8080), timeout=2) as s:
-                s.sendall(comando.encode()) # <--- EL FIX ESTÁ AQUÍ
+                s.sendall(comando.encode()) # Recibe el comando de los botones
                 return s.recv(4096).decode()
         except Exception as e:
             msg.showerror("Error de Red", f"No se pudo conectar con Go: {e}")
@@ -132,7 +132,7 @@ class CasinoApp:
                 self.monto_usuario = respuesta.split("|")[1] # Go nos devuelve el saldo
                 self.show_game_menu()
             else:
-                msg.showerror("Acceso Denegado", "      Skill Issue        ")
+                msg.showerror("Skill Issue", "      Skill Issue        ")
 
     def confirmar_juego(self, nombre_juego):
         msg.showinfo("Entrando", f"Iniciando {nombre_juego}... ¡Buena suerte!")
