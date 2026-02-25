@@ -56,6 +56,7 @@ class CasinoApp:
 
         juegos = ["Ruleta", "Blackjack", "Tragamonedas", "Póker"]
         for i, juego in enumerate(juegos, 1):
+            #Se usa una funcion lambda para mostrar los 4 juegos del arreglo, para eficientizar el juego
             tk.Button(frame, text=f"Juego {i}: {juego}", width=30, command=lambda j=juego: self.confirmar_juego(j)).pack(pady=2)
 
         tk.Button(frame, text="Volver al Inicio", bg="#f44336", fg="white", command=self.show_login_page).pack(pady=20)
