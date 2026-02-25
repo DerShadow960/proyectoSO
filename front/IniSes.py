@@ -2,6 +2,7 @@ import tkinter as tk
 from tkinter import messagebox as msg, ttk, simpledialog
 import socket
 
+#Instanciamos una clase para manejo eficiente y mas simple del frontend
 class CasinoApp:
     def __init__(self, root):
         self.root = root
@@ -12,12 +13,15 @@ class CasinoApp:
         self.nombre_usuario = ""
         self.monto_usuario = 0
         
+        # Protocolo para evitar procesos zombies
         self.root.protocol("WM_DELETE_WINDOW", self.protocol_shutdown)
         self.main_container = tk.Frame(self.root)
         self.main_container.pack(fill="both", expand=True)
         
         self.show_login_page()
 
+
+    #FUncion para evitar sin impotar en que widget estemos, un proceso zombie, por no terminar bien el proceso
     def clear_screen(self):
         for widget in self.main_container.winfo_children():
             widget.destroy()
@@ -78,7 +82,7 @@ class CasinoApp:
     def enviar_comando(self, comando):
         """Función Maestra: Aquí se resuelve el tema de los bytes (.encode)"""
         try:
-            with socket.create_connection(('localhost', 8080), timeout=2) as s:
+            with socket.create_connection(('172.29.72.140', 8080), timeout=2) as s:
                 s.sendall(comando.encode()) # Recibe el comando de los botones
                 return s.recv(4096).decode()
         except Exception as e:
