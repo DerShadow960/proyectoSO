@@ -6,7 +6,7 @@ postgres_data/
 *.log
 
 # --- Seguridad ---
-# Ignora archivos de variables de entorno (donde pondrás tus contraseñas reales)
+# Ignora archivos de variables de entorno (donde guardo mis pwsd)
 .env
 
 # --- Lenguajes: Python ---
@@ -18,7 +18,7 @@ __pycache__/
 # Ignora el ejecutable compilado en la carpeta back
 back/main
 
-# --- Lenguajes: Rust (Tu futura IA) ---
+# --- Lenguajes: Rust (IA) ---
 # Ignora toda la carpeta de compilación de Rust
 /ai_engine/target/
 
