@@ -10,3 +10,25 @@ Paso 2, Correr front y back con los siguientes comandos
     cd dir-carp-proyecto/back ===> go rum main.go
     cd dir-carp-proyecto/front ===> python3 IniSes.py
     
+//Fin del primer parcial
+
+Se requiere instalar el motor de contenedores y el lenguaje para la IA.
+
+    sudo apt install docker.io docker-compose 
+    sudo apt install postgresql-client (Para pruebas de conexión a la DB)
+    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+
+Paso 2: Levantar la Infraestructura (Base de Datos en Docker)
+
+    cd dir-carp-proyecto ===> docker-compose up -d
+    
+Paso 3: Compilar y correr el motor de IA (Rust)
+
+    cd dir-carp-proyecto/ai_engine ===> cargo run
+
+Paso 4: Ejecución del sistema completo (4 Terminales)
+
+    Terminal DB: docker-compose up -d
+    Terminal IA (Rust): cd ai_engine && cargo run
+    Terminal Back (Go): cd back && go run main.go 
+    Terminal Front (Python): cd front && python3 IniSes.py

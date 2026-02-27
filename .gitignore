@@ -1,0 +1,26 @@
+# Ayuda de gemini, para estructurar bien mi .gitignore :)
+# --- Base de datos de Docker ---
+# Ignora los archivos binarios de Postgres para que no se suban a GitHub
+postgres_data/
+*.db
+*.log
+
+# --- Seguridad ---
+# Ignora archivos de variables de entorno (donde pondrás tus contraseñas reales)
+.env
+
+# --- Lenguajes: Python ---
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# --- Lenguajes: Go ---
+# Ignora el ejecutable compilado en la carpeta back
+back/main
+
+# --- Lenguajes: Rust (Tu futura IA) ---
+# Ignora toda la carpeta de compilación de Rust
+/ai_engine/target/
+
+# --- Otros ---
+.DS_Store

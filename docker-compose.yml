@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: casino_db
+    restart: always
+    environment:
+      POSTGRES_USER: rflever
+      POSTGRES_PASSWORD: FRLG0208061Waxzsq2$
+      POSTGRES_DB: casino_db
+    ports:
+      - "50320:5432"
+    volumes:
+      # Esto ejecuta tu script SQL automáticamente al iniciar
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+      # Persistencia para que no se borren los datos al apagar Docker
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
