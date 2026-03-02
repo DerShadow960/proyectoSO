@@ -3,7 +3,7 @@ CREATE TABLE IF NOT EXISTS users (
     id SERIAL PRIMARY KEY,
     username VARCHAR(50) UNIQUE NOT NULL,
     pswdhash TEXT NOT NULL,
-    balance DECIMAL(12, 2) DEFAULT 1000.00,
+    balance DECIMAL(12, 2) DEFAULT 1000.00
 );
 
 -- Tabla de Partidas 
@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS gamelogs (
     userid INTEGER REFERENCES users(id),
     gametype VARCHAR(20), -- 'blackjack', 'ruleta', 'tragamonedas', 'poker' 
     betamount DECIMAL(12, 2), 
-    result VARCHAR(10), -- 'win', 'loss', 'draw'
+    result VARCHAR(10) -- 'win', 'loss', 'draw'
 );
 
 -- Tabla para el Chat Global

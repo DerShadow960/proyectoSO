@@ -1,42 +1,60 @@
 package main
 
 import (
-	"bufio"
+	"database/sql"
 	"fmt"
 	"net"
 	"os"
 	"strings"
-	"sync"
+
+	"github.com/joho/godotenv"
+	_ "github.com/lib/pq"
 )
 
-// Mutex: El "semáforo" que evita que dos hilos choquen al tocar el archivo.
-var mu sync.Mutex
-
-const dbPath = "../files/partida.txt"
-
 func main() {
-	// Iniciamos el servidor en el puerto 8080
-	ln, err := net.Listen("tcp", ":8080")
+
+	error := godotenv.Load("../.env")
+	if error != nil {
+		fmt.Println("Error cargando el archivo .env")
+	}
+
+	host := os.Getenv("DB_HOST")
+	port := os.Getenv("DB_PORT")
+	user := os.Getenv("DB_USER")
+	password := os.Getenv("DB_PASSWORD")
+	dbname := os.Getenv("DB_NAME")
+
+	psgsql := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
+	db, err := sql.Open("postgres", psgsql)
+
 	if err != nil {
-		fmt.Println("Error al iniciar servidor:", err)
+		fmt.Println("Error al iniciar servidor, chequele mi compadre:", err)
 		return
 	}
-	fmt.Println("Servidor Casino Omen iniciado en Ubuntu...")
-	fmt.Println("Esperando conexiones del Front-end...")
 
+	err = db.Ping()
+	if err != nil {
+		fmt.Println("Error, inicie el docker por Dios:", err)
+	}
+	fmt.Println("Conectado a la DB con éxito")
+	ln, err := net.Listen("tcp", ":12010") // Tu puerto secreto
+	if err != nil {
+		fmt.Println("Error socket:", err)
+		return
+	}
+
+	// 4. El ciclo infinito
 	for {
-		// Aceptamos una conexión (bloqueante hasta que alguien se conecte)
 		conn, err := ln.Accept()
 		if err != nil {
 			continue
 		}
-		// Lanzamos una Goroutine: Es un hilo ligero que se encarga del cliente
-		// Esto permite que 100 personas jueguen al mismo tiempo.
-		go handleConnection(conn)
+		go handleConnection(conn, db)
 	}
+
 }
 
-func handleConnection(conn net.Conn) {
+func handleConnection(conn net.Conn, db *sql.DB) {
 	defer conn.Close() // Cerramos el socket al terminar (evita procesos zombie de red)
 
 	buffer := make([]byte, 1024)
@@ -58,14 +76,11 @@ func handleConnection(conn net.Conn) {
 	// RUTEO: ¿Qué quiere el usuario?
 	switch comando {
 	case "REG":
-		// Formato: REG|nombre|monto|password
-		registrar(conn, partes[1], partes[2], partes[3])
+		// Formato: REG|nombre|passwordhash|monto
+		registrar(conn, db, partes[1], partes[2], partes[3])
 	case "LOG":
 		// Formato: LOG|nombre|password
-		login(conn, partes[1], partes[2])
-	case "GET":
-		// Formato: GET
-		enviarLista(conn)
+		login(conn, db, partes[1], partes[2])
 	default:
 		conn.Write([]byte("ERROR|Comando no reconocido"))
 	}
@@ -73,75 +88,36 @@ func handleConnection(conn net.Conn) {
 
 // --- FUNCIONES DE LÓGICA ---
 
-func registrar(conn net.Conn, nombre, monto, pswd string) {
-	mu.Lock() // SECCIÓN CRÍTICA: Nadie más entra aquí hasta que terminemos
-	defer mu.Unlock()
+func registrar(conn net.Conn, db *sql.DB, nombre string, pswd string, monto string) {
+	sqlquery := `INSERT INTO users (username, pswdhash, balance) VALUES ($1, $2, $3)`
+	_, err := db.Exec(sqlquery, nombre, pswd, monto)
 
-	datos := fmt.Sprintf("%s,%s,%s\n", nombre, monto, pswd)
-	f, err := os.OpenFile(dbPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
-		conn.Write([]byte("ERROR|No se pudo abrir la BD"))
+		fmt.Println("Error en el INSERT:", err) // Esto lo ves tú en la consola
+		conn.Write([]byte("ERROR|Registro fallido"))
 		return
 	}
-	defer f.Close()
 
-	f.WriteString(datos)
 	fmt.Printf("Registro exitoso: %s\n", nombre)
 	conn.Write([]byte("OK|Registrado"))
 }
 
-func login(conn net.Conn, nombre, pswd string) {
-	mu.Lock()
-	defer mu.Unlock()
+func login(conn net.Conn, db *sql.DB, nombre string, pswd string) {
+	var balance string
+	// El $1 y $2 aseguran que nadie haga SQL Injection
+	query := "SELECT balance FROM users WHERE username = $1 AND pswdhash = $2"
 
-	f, err := os.Open(dbPath)
+	err := db.QueryRow(query, nombre, pswd).Scan(&balance)
+
 	if err != nil {
-		conn.Write([]byte("ERROR|Sin base de datos"))
+		if err == sql.ErrNoRows {
+			// No encontramos al usuario o la clave no coincide
+			conn.Write([]byte("ERROR|Unauthorized"))
+		} else {
+			// Error de conexión a la DB
+			conn.Write([]byte("ERROR|DB_DOWN"))
+		}
 		return
 	}
-	defer f.Close()
-
-	scanner := bufio.NewScanner(f)
-	for scanner.Scan() {
-		linea := scanner.Text()
-		datos := strings.Split(linea, ",")
-		// datos[0]=nombre, datos[1]=monto, datos[2]=password
-		if datos[0] == nombre && datos[2] == pswd {
-			fmt.Printf("Acceso concedido: %s\n", nombre)
-			conn.Write([]byte("OK|" + datos[1])) // Mandamos OK y el saldo
-			return
-		}
-	}
-	conn.Write([]byte("DENIED|Credenciales incorrectas"))
-}
-
-func enviarLista(conn net.Conn) {
-	mu.Lock()
-	defer mu.Unlock()
-
-	f, err := os.Open(dbPath)
-	if err != nil {
-		conn.Write([]byte("EMPTY"))
-		return
-	}
-	defer f.Close()
-
-	var acumulado []string
-	scanner := bufio.NewScanner(f)
-	for scanner.Scan() {
-		linea := scanner.Text()
-		datos := strings.Split(linea, ",")
-		// Mandamos solo Nombre y Monto por seguridad
-		if len(datos) >= 2 {
-			acumulado = append(acumulado, fmt.Sprintf("%s,%s", datos[0], datos[1]))
-		}
-	}
-
-	// Unimos todo con ";" para que Python sepa dónde termina cada fila
-	respuesta := strings.Join(acumulado, ";")
-	if respuesta == "" {
-		conn.Write([]byte("EMPTY"))
-	} else {
-		conn.Write([]byte(respuesta))
-	}
+	conn.Write([]byte("OK|" + balance))
 }

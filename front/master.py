@@ -35,10 +35,8 @@ class CasinoApp:
         
         tk.Label(frame, text="Nombre:").pack()
         self.entry_nombre = tk.Entry(frame); self.entry_nombre.pack()
-
         tk.Label(frame, text="Password").pack()
         self.entry_pswd = tk.Entry(frame, show="*"); self.entry_pswd.pack()
-        
         tk.Label(frame, text="Monto inicial:").pack()
         self.entry_monto = tk.Entry(frame); self.entry_monto.pack()
 
@@ -64,26 +62,26 @@ class CasinoApp:
     def show_load_page(self):
         self.clear_screen()
         frame = tk.Frame(self.main_container)
-        frame.pack(pady=20, padx=20, fill="both", expand=True)
-        
-        columns = ("id", "nombre", "monto")
-        self.tree = ttk.Treeview(frame, columns=columns, show="headings")
-        self.tree.heading("id", text="ID"); self.tree.heading("nombre", text="Nombre"); self.tree.heading("monto", text="Monto")
-        self.tree.pack(fill="both", expand=True)
+        frame.pack(pady=50)
 
-        self.populate_table()
+        tk.Label(frame, text="ACCESO A CUENTA", font=("Arial", 16, "bold")).pack(pady=10)    
+        tk.Label(frame, text="Usuario:").pack()
+        self.ent_user = tk.Entry(frame)
+        self.ent_user.pack(pady=5)
 
-        btn_frame = tk.Frame(frame)
-        btn_frame.pack(pady=10)
-        tk.Button(btn_frame, text="Cargar Seleccionado", bg="#2196F3", fg="white", command=self.cargar_seleccion).pack(side="left", padx=5)
-        tk.Button(btn_frame, text="Regresar", command=self.show_login_page).pack(side="left", padx=5)
+        tk.Label(frame, text="Contraseña:").pack()
+        self.ent_pass = tk.Entry(frame, show="*")
+        self.ent_pass.pack(pady=5)
+
+        tk.Button(frame, text="Entrar", bg="#2196F3", fg="white", command=self.ejecutar_login).pack(fill="x", pady=10)
+        tk.Button(frame, text="Regresar", command=self.show_login_page).pack(fill="x")
 
     # --- COMUNICACIÓN ---
 
     def enviar_comando(self, comando):
         """Función Maestra: Aquí se resuelve el tema de los bytes (.encode)"""
         try:
-            with socket.create_connection(('172.29.72.140', 8080), timeout=2) as s:
+            with socket.create_connection(('localhost', 12010), timeout=2) as s:
                 s.sendall(comando.encode()) # Recibe el comando de los botones
                 return s.recv(4096).decode()
         except Exception as e:
@@ -92,53 +90,41 @@ class CasinoApp:
 
     def nueva_partida(self):
         nombre = self.entry_nombre.get()
-        monto = self.entry_monto.get()
         pswd = self.entry_pswd.get()
+        monto = self.entry_monto.get()
 
         if not nombre or not monto or not pswd:
             msg.showwarning("Atención", "Datos incompletos")
             return
 
         # Enviamos comando REG al backend
-        respuesta = self.enviar_comando(f"REG|{nombre}|{monto}|{pswd}")
+        respuesta = self.enviar_comando(f"REG|{nombre}|{pswd}|{monto}")
         
         if respuesta and respuesta.startswith("OK"):
             self.nombre_usuario = nombre
             self.monto_usuario = monto
             self.show_game_menu()
 
-    def populate_table(self):
-        respuesta = self.enviar_comando("GET")
-        if respuesta and respuesta != "EMPTY":
-            # Limpiar tabla antes de llenar
-            for i in self.tree.get_children(): self.tree.delete(i)
-            
-            for i, fila in enumerate(respuesta.split(";"), 1):
-                datos = fila.split(",")
-                if len(datos) >= 2:
-                    self.tree.insert("", "end", values=(i, datos[0], datos[1]))
 
-    def cargar_seleccion(self):
-        """Versión PRO: Desafío de autenticación"""
-        item = self.tree.selection()
-        if not item: 
-            msg.showwarning("Error", "Selecciona una partida")
+    def ejecutar_login(self):
+        user = self.ent_user.get()
+        pwd = self.ent_pass.get()
+
+        if not user or not pwd:
+            msg.showwarning("Error", "Debes llenar todos los campos")
             return
 
-        datos_fila = self.tree.item(item)['values']
-        nombre_sel = datos_fila[1]
-
-        pwd = simpledialog.askstring("Validación", f"Password para {nombre_sel}:", show='*')
-        
-        if pwd:
-            respuesta = self.enviar_comando(f"LOG|{nombre_sel}|{pwd}")
-            if respuesta and respuesta.startswith("OK"):
-                self.nombre_usuario = nombre_sel
-                self.monto_usuario = respuesta.split("|")[1] # Go nos devuelve el saldo
-                self.show_game_menu()
-            else:
-                msg.showerror("Skill Issue", "      Skill Issue        ")
-
+        # Enviamos el comando LOG al Backend
+        respuesta = self.enviar_comando(f"LOG|{user}|{pwd}")
+    
+        if respuesta and respuesta.startswith("OK"):
+            self.nombre_usuario = user
+            self.monto_usuario = respuesta.split("|")[1]
+            self.show_game_menu()
+        else:
+            # IMPORTANTE: No decimos qué falló, solo que no entró
+            msg.showerror("Error de Acceso", "Skill Issue")
+    
     def confirmar_juego(self, nombre_juego):
         msg.showinfo("Entrando", f"Iniciando {nombre_juego}... ¡Buena suerte!")
 
