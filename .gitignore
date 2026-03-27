@@ -24,3 +24,6 @@ back/main
 
 # --- Otros ---
 .DS_Store
+
+/front/build/
+/front/master.spec

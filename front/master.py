@@ -19,8 +19,7 @@ class CasinoApp:
         self.main_container.pack(fill="both", expand=True)
         
         self.show_login_page()
-
-
+        
     #FUncion para evitar sin impotar en que widget estemos, un proceso zombie, por no terminar bien el proceso
     def clear_screen(self):
         for widget in self.main_container.winfo_children():
@@ -52,9 +51,9 @@ class CasinoApp:
         tk.Label(frame, text=f"Jugador: {self.nombre_usuario}", font=("Arial", 12)).pack()
         tk.Label(frame, text=f"Saldo: ${self.monto_usuario}", font=("Arial", 12, "bold"), fg="green").pack(pady=10)
 
-        juegos = ["Ruleta", "Blackjack", "Tragamonedas", "Póker"]
+        juegos = ["Ruleta", "21/Blackjack", "Tragamonedas", "Póker", "Pesca"]
         for i, juego in enumerate(juegos, 1):
-            #Se usa una funcion lambda para mostrar los 4 juegos del arreglo, para eficientizar el juego
+            #Se usa una funcion lambda para mostrar los 5 juegos del arreglo, para eficientizar el juego
             tk.Button(frame, text=f"Juego {i}: {juego}", width=30, command=lambda j=juego: self.confirmar_juego(j)).pack(pady=2)
 
         tk.Button(frame, text="Volver al Inicio", bg="#f44336", fg="white", command=self.show_login_page).pack(pady=20)
@@ -105,7 +104,6 @@ class CasinoApp:
             self.monto_usuario = monto
             self.show_game_menu()
 
-
     def ejecutar_login(self):
         user = self.ent_user.get()
         pwd = self.ent_pass.get()
@@ -126,7 +124,28 @@ class CasinoApp:
             msg.showerror("Error de Acceso", "Skill Issue")
     
     def confirmar_juego(self, nombre_juego):
-        msg.showinfo("Entrando", f"Iniciando {nombre_juego}... ¡Buena suerte!")
+        # El usuario ingresa a un juego, se le muestra un mensaje de bienvenida
+        posjuegos = ["Ruleta", "21/Blackjack", "Tragamonedas", "Póker", "Pesca"]
+         
+        if nombre_juego == "21/Blackjack" or nombre_juego == "Póker": 
+            return self.enviar_comando("CASE|ALPHA")
+        
+        if nombre_juego == "Ruleta":
+            return self.enviar_comando("CASE|BETA")
+        
+        elif nombre_juego == "Tragamonedas":
+            return self.enviar_comando("CASE|GAMMA")
+
+        elif nombre_juego == "Pesca":
+            return self.enviar_comando("CASE|DELTA")
+        else:
+            msg.showerror("Error", "Juego no reconocido")
+            return 
+
+    def iniciar_juego(self, juego):
+        return juego
+
+
 
     def protocol_shutdown(self):
         if msg.askyesno("Salir", "¿Deseas cerrar el casino?"):

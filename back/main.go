@@ -81,6 +81,14 @@ func handleConnection(conn net.Conn, db *sql.DB) {
 	case "LOG":
 		// Formato: LOG|nombre|password
 		login(conn, db, partes[1], partes[2])
+	case "ALPHA":
+		games(conn, db, "ALPHA")
+	case "BETA":
+		games(conn, db, "BETA")
+	case "GAMMA":
+		games(conn, db, "GAMMA")
+	case "DELTA":
+		games(conn, db, "DELTA")
 	default:
 		conn.Write([]byte("ERROR|Comando no reconocido"))
 	}
@@ -114,10 +122,14 @@ func login(conn net.Conn, db *sql.DB, nombre string, pswd string) {
 			// No encontramos al usuario o la clave no coincide
 			conn.Write([]byte("ERROR|Unauthorized"))
 		} else {
-			// Error de conexión a la DB
+			// Error de conexión a la DB, hay que activar el contenedor de la DB
 			conn.Write([]byte("ERROR|DB_DOWN"))
 		}
 		return
 	}
 	conn.Write([]byte("OK|" + balance))
+}
+
+func games(conn net.Conn, db *sql.DB, game string) {
+
 }
