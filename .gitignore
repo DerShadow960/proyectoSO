@@ -5,8 +5,6 @@ postgres_data/
 *.db
 *.log
 
-# --- Seguridad ---
-# Ignora archivos de variables de entorno (donde guardo mis pwsd)
 .env
 
 # --- Lenguajes: Python ---
@@ -18,12 +16,10 @@ __pycache__/
 # Ignora el ejecutable compilado en la carpeta back
 back/main
 
-# --- Lenguajes: Rust (IA) ---
-# Ignora toda la carpeta de compilación de Rust
-/ai_engine/target/
 
 # --- Otros ---
 .DS_Store
 
 /front/build/
 /front/master.spec
+
