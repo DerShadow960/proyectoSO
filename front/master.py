@@ -1,3 +1,4 @@
+#Importamos de librerias
 import tkinter as tk
 from tkinter import messagebox as msg, ttk, simpledialog
 import socket
@@ -5,21 +6,24 @@ import math
 import random
 import threading
 
+#Importamos de scripts
+
+from check.processcheck import checkout
+from games.ruleta import Ruleta as rule
+
 
 class CasinoApp:
+    
     def __init__(self, root):
         self.root = root
         self.root.title("Sindicato de Juego - Ubuntu Edition")
         self.root.geometry("600x500")
-
         self.nombre_usuario = ""
         self.monto_usuario = 0.0
-
         self.root.protocol("WM_DELETE_WINDOW", self.protocol_shutdown)
         self.main_container = tk.Frame(self.root)
         self.main_container.pack(fill="both", expand=True)
 
-        #self._abrir_monitor()
         self.show_login_page()
 
     def clear_screen(self):
@@ -151,75 +155,6 @@ class CasinoApp:
             self.root.destroy()
 
 
-    # # ── MONITOR DE SERVICIOS ─────────────────────────────────────────────────
-
-    # _SERVICIOS = [
-    #     ("Backend Go",    "localhost", 12010),
-    #     ("Base de datos", "localhost", 5432),
-    # ]
-
-    # def _abrir_monitor(self):
-    #     win = tk.Toplevel(self.root)
-    #     win.title("Monitor de Servicios")
-    #     win.geometry("300x200")
-    #     win.resizable(False, False)
-    #     win.configure(bg="#1a1a2e")
-    #     win.protocol("WM_DELETE_WINDOW", win.withdraw)
-    #     self._monitor_win = win
-
-    #     tk.Label(win, text="ESTADO DE SERVICIOS", font=("Courier", 12, "bold"),
-    #              fg="#e2b96f", bg="#1a1a2e").pack(pady=(12, 6))
-
-    #     self._mon_labels = {}
-    #     for nombre, host, puerto in self._SERVICIOS:
-    #         fila = tk.Frame(win, bg="#1a1a2e"); fila.pack(fill="x", padx=18, pady=3)
-    #         tk.Label(fila, text=f"{nombre:<18}", font=("Courier", 10),
-    #                  fg="#aaaaaa", bg="#1a1a2e", width=18, anchor="w").pack(side="left")
-    #         lbl = tk.Label(fila, text="...", font=("Courier", 10, "bold"),
-    #                        fg="#888888", bg="#1a1a2e", width=10, anchor="w")
-    #         lbl.pack(side="left")
-    #         self._mon_labels[nombre] = lbl
-
-    #     self._lbl_mon_hora = tk.Label(win, text="Actualizando...",
-    #                                   font=("Courier", 8), fg="#555577", bg="#1a1a2e")
-    #     self._lbl_mon_hora.pack(pady=4)
-    #     tk.Button(win, text="Refrescar", font=("Courier", 9),
-    #               bg="#2d2d4e", fg="#e2b96f", relief="flat",
-    #               command=self._chequear_servicios).pack(pady=4)
-
-    #     self._chequear_servicios()
-
-    # def _ping(self, host, puerto):
-    #     try:
-    #         with socket.create_connection((host, puerto), timeout=1.5):
-    #             return True
-    #     except Exception:
-    #         return False
-
-    # def _chequear_servicios(self):
-    #     def worker():
-    #         res = {n: self._ping(h, p) for n, h, p in self._SERVICIOS}
-    #         self.root.after(0, lambda: self._actualizar_monitor(res))
-    #     threading.Thread(target=worker, daemon=True).start()
-    #     self.root.after(5000, self._chequear_servicios)
-
-    # def _actualizar_monitor(self, resultados):
-    #     import datetime
-    #     for nombre, estado in resultados.items():
-    #         lbl = self._mon_labels.get(nombre)
-    #         if lbl:
-    #             lbl.config(text="UP  ●" if estado else "DOWN ●",
-    #                        fg="#2ecc71" if estado else "#e74c3c")
-    #     hora = datetime.datetime.now().strftime("%H:%M:%S")
-    #     caido = [n for n, v in resultados.items() if not v]
-    #     if caido:
-    #         self._lbl_mon_hora.config(
-    #             text=f"[!] CAIDO: {', '.join(caido)} — {hora}", fg="#e74c3c")
-    #     else:
-    #         self._lbl_mon_hora.config(
-    #             text=f"Ultimo chequeo: {hora}  (cada 5s)", fg="#555577")
-
-
     _ORDEN_RULETA = [
         0, 28, 9, 26, 30, 11, 7, 20, 32, 17, 5, 22, 34, 15, 3, 24,
         36, 13, 1, "00", 27, 10, 25, 29, 12, 8, 19, 31, 18, 6, 21,
@@ -228,17 +163,15 @@ class CasinoApp:
     _ROJOS_RULETA = {1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36}
 
     def ruleta(self, frame, nombre_usuario, monto_usuario):
-        self.root.geometry("820x700")
+        self.root.geometry("1000x800")
         self._monto_ruleta     = monto_usuario
         self._ruleta_girando   = False
         self._ruleta_angulo    = 0.0
         self._apuestas_activas = {}   # {(tipo, valor): monto}
 
-        tk.Label(frame, text="RULETA AMERICANA",
-                 font=("Arial", 17, "bold"), fg="#c0392b").pack(pady=(6, 1))
+        tk.Label(frame, text="RULEVER", font=("Arial", 17, "bold"), fg="#c0392b").pack(pady=(6, 1))
         tk.Label(frame, text=f"Jugador: {nombre_usuario}", font=("Arial", 10)).pack()
-        self._lbl_saldo_ruleta = tk.Label(frame, text=f"Saldo: ${monto_usuario:.2f}",
-                                          font=("Arial", 12, "bold"), fg="#27ae60")
+        self._lbl_saldo_ruleta = tk.Label(frame, text=f"Saldo: ${monto_usuario:.2f}", font=("Arial", 12, "bold"), fg="#27ae60")
         self._lbl_saldo_ruleta.pack(pady=1)
 
         contenedor = tk.Frame(frame); contenedor.pack(fill="both", expand=True)
@@ -293,7 +226,7 @@ class CasinoApp:
         tk.Label(panel, text="Par / Impar  (paga 2x)", font=("Arial", 10, "bold"), fg="#bdc3c7", bg="#0a4a1a").pack(pady=(6,0))
         pf = tk.Frame(panel, bg="#0a4a1a"); pf.pack(pady=2)
         tk.Button(pf, text="PAR",   bg="#2980b9", fg="white", width=10, font=("Arial", 10, "bold"), command=lambda: self._preparar_apuesta("paridad", "par")).pack(side="left", padx=3)
-        tk.Button(pf, text="IMPAR", bg="#8e44ad", fg="white", width=10, font=("Arial", 10, "bold"), command=lambda: self._preparar_apuesta("paridad", "impar")).pack(side="left", padx=3)
+        tk.Button(pf, text="IMPAR", bg="#8e44ad", fg="white", width=10, font=("Arial", 10, "bold"), command=lambda: self._preparar_apuesta("paridad", "nopar")).pack(side="left", padx=3)
 
         # Docena
         tk.Label(panel, text="Docena  (paga 3x)", font=("Arial", 10, "bold"), fg="#bdc3c7", bg="#0a4a1a").pack(pady=(6,0))
@@ -425,8 +358,8 @@ class CasinoApp:
             idx_ganador = 0
 
         seg = self._ruleta_seg
-        self._ruleta_destino     = self._ruleta_angulo - (5*360) - (idx_ganador*seg + seg/2)
-        self._ruleta_pasos       = 0
+        self._ruleta_destino = self._ruleta_angulo - (5*360) - (idx_ganador*seg + seg/2)
+        self._ruleta_pasos = 0
         self._ruleta_total_pasos = 80
         self._lbl_resultado_ruleta.config(text="Girando...", fg="#f39c12")
         self._animar_ruleta()
@@ -438,7 +371,7 @@ class CasinoApp:
             self._mostrar_resultado_ruleta()
             return
 
-        t     = self._ruleta_pasos / self._ruleta_total_pasos
+        t = self._ruleta_pasos / self._ruleta_total_pasos
         delta = (self._ruleta_destino - self._ruleta_angulo) / self._ruleta_total_pasos
         self._ruleta_angulo += delta * (1 + 2*(1-t))
         self._ruleta_pasos  += 1
@@ -518,7 +451,7 @@ class CasinoApp:
         self.monto_usuario = nuevo_saldo
         self.show_game_menu()
 
-
 root = tk.Tk()
 app = CasinoApp(root)
+
 root.mainloop()

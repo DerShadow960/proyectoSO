@@ -1,4 +1,3 @@
-# Ayuda de gemini, para estructurar bien mi .gitignore :)
 # --- Base de datos de Docker ---
 # Ignora los archivos binarios de Postgres para que no se suban a GitHub
 postgres_data/
@@ -22,4 +21,3 @@ back/main
 
 /front/build/
 /front/master.spec
-

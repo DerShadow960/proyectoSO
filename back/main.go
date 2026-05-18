@@ -180,7 +180,7 @@ func ruleta(conn net.Conn, db *sql.DB, usuario string, montoStr string, opcion s
 	case "par":
 		win = spin > 0 && spin != 37 && spin%2 == 0
 		payout = monto * 2
-	case "impar":
+	case "nopar":
 		win = spin > 0 && spin != 37 && spin%2 != 0
 		payout = monto * 2
 	case "primera":
