@@ -15,24 +15,8 @@ func main() {
 
 	ports := []string{"12010", "54321", "5432"}
 	fmt.Printf("Escaneando %s: \n", host)
-	//raw_connect(host, ports)
 	tcpGather(host, ports)
 }
-
-//func raw_connect(host string, ports []string) {
-//	for _, port := range ports {
-//		timeout := 1 * time.Second
-//		conn, err := net.DialTimeout("tcp", net.JoinHostPort(host, port), timeout)
-//
-//		if err != nil {
-//			fmt.Printf("Puerto %s: CERRADO \n", port)
-//			continue
-//		}
-//
-//		fmt.Printf("Puerto %s: ABIERTO  \n", port)
-//		conn.Close()
-//	}
-//}
 
 func tcpGather(host string, ports []string) map[string]string {
 	results := make(map[string]string)
@@ -53,6 +37,6 @@ func tcpGather(host string, ports []string) map[string]string {
 			fmt.Printf("Puerto %s: ENABLED \n", port)
 		}
 	}
-	fmt.Printf("%s\n", results)
+
 	return results
 }
