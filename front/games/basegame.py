@@ -3,13 +3,14 @@ import socket
 from tkinter import messagebox as msg
 
 class BaseGame:
-    def __init__(self, root, frame, nombre_usuario, monto_usuario, host, puerto):
+    def __init__(self, root, frame, nombre_usuario, monto_usuario, host, puerto, callback_menu=None):
         self.root = root
         self.frame = frame
         self.nombre_usuario = nombre_usuario
         self.monto_usuario = monto_usuario
         self.host = host
         self.puerto = int(puerto)
+        self.callback_menu = callback_menu
     
     def enviar_comando(self, comando):
         try:

@@ -10,8 +10,8 @@ ORDEN_RULETA = [0, 28, 9, 26, 30, 11, 7, 20, 32, 17, 5, 22, 34, 15, 3, 24, 36, 1
 ROJOS_RULETA = {1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36}
 
 class Ruleta(BaseGame):
-    def __init__(self, root, frame, nom_user, sal_user, host, puerto):
-        super().__init__(root, frame, nom_user, sal_user, host, puerto)
+    def __init__(self, root, frame, nom_user, sal_user, host, puerto, callback_menu=None):
+        super().__init__(root, frame, nom_user, sal_user, host, puerto, callback_menu)
         self.root.geometry("1000x800")
         self.root = root
         self._monto_ruleta = sal_user
@@ -101,8 +101,8 @@ class Ruleta(BaseGame):
         self._btn_girar.pack(pady=4)
         self._lbl_resultado_ruleta = tk.Label(panel, text="Selecciona apuestas y monto", font=("Arial", 10), fg="#ecf0f1", bg="#145214", relief="ridge", width=30, pady=6, wraplength=220)
         self._lbl_resultado_ruleta.pack(pady=4)
-        tk.Button(panel, text="<- Volver al Menu", command=lambda: [self.root.geometry("600x500"), self.show_game_menu()], bg="#7f8c8d", fg="white", font=("Arial", 10)).pack(pady=4)
-
+        tk.Button(panel, text="<- Volver al Menu", command=self.volver_menu, bg="#7f8c8d", fg="white", font=("Arial", 10)).pack(pady=4)
+    
     def _etiquetar(self, tipo, valor):
         if tipo == "color":   return f"Color {valor.capitalize()}"
         if tipo == "paridad": return f"{valor.capitalize()}"
@@ -261,7 +261,7 @@ class Ruleta(BaseGame):
 
         self.monto_usuario  = nuevoSaldo
         self._monto_ruleta  = nuevoSaldo
-        self._lbl_saldo_ruleta.config(text=f"Saldo: ${nuevoSaldo:.2f}")
+        self.lbl_saldo_ruleta.config(text=f"Saldo: ${nuevoSaldo:.2f}")
         self._limpiar_apuestas()
 
         signo = "+" if ganancia >= 0 else ""
@@ -275,3 +275,32 @@ class Ruleta(BaseGame):
             msg.showinfo("Sin fondos", "Te quedaste sin saldo!")
             self.root.geometry("600x500")
             self.show_game_menu()
+
+    def volver_menu(self):
+        self.root.geometry("600x500")
+        for widget in self.frame.winfo_children():
+            widget.destroy()
+        if self.callback_menu:
+            self.callback_menu()
+
+    def show_game_menu(self):
+        self.clear_screen()
+        frame = tk.Frame(self.main_container)
+        frame.pack(pady=20)
+
+        tk.Label(frame, text=f"Jugador: {self.nombre_usuario}", font=("Arial", 12)).pack()
+        tk.Label(frame, text=f"Saldo: ${self.monto_usuario:.2f}", font=("Arial", 12, "bold"), fg="green").pack(pady=10)
+        
+        tk.Button(frame, text="Cambiar Servidor", bg="#2196F3", fg="white", command=self.cambiar_servidor).pack(fill="x", pady=5)
+
+        juegos = ["Ruleta", "Poker", "Tragamonedas"]
+        for i, juego in enumerate(juegos, 1):
+            tk.Button(frame, text=f"Juego {i}: {juego}", width=30,
+                      command=lambda j=juego: self.confirmar_juego(j)).pack(pady=2)
+
+        tk.Button(frame, text="Volver al Inicio", bg="#f44336", fg="white",
+                  command=self.show_login_page).pack(pady=20)
+
+    def clear_screen(self):
+        for widget in self.main_container.winfo_children():
+            widget.destroy()

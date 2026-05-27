@@ -173,11 +173,11 @@ class CasinoApp:
         frame.pack(pady=20)
         
         if nombre_juego == "Ruleta":
-            rule(self.root, frame, self.nombre_usuario, self.monto_usuario, self.servidor_host, self.servidor_puerto)
+            rule(self.root, frame, self.nombre_usuario, self.monto_usuario, self.servidor_host, self.servidor_puerto, self.show_game_menu)
         elif nombre_juego == "Tragamonedas":
-            trag(self.root, frame, self.nombre_usuario, self.monto_usuario, self.servidor_host, self.servidor_puerto)
+            trag(self.root, frame, self.nombre_usuario, self.monto_usuario, self.servidor_host, self.servidor_puerto, self.show_game_menu)
         elif nombre_juego == "Poker":
-            pok(self.root, frame, self.nombre_usuario, self.monto_usuario, self.servidor_host, self.servidor_puerto)
+            pok(self.root, frame, self.nombre_usuario, self.monto_usuario, self.servidor_host, self.servidor_puerto, self.show_game_menu)
 
     def protocol_shutdown(self):
         if msg.askyesno("Salir", "Deseas cerrar el casino?"):
